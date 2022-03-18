@@ -8,7 +8,7 @@ from odoo.addons.datamodel.core import Datamodel
 
 class FleetVehicleLogServices(Datamodel):
     _name = "fleet.vehicle.log.services"
-    _description = "Services for vehicle log"
 
     id = fields.Integer(required=True, allow_none=False)
-    description = fields.String(required=True, allow_none=False)
+    name = fields.String(required=True)
+    notes = fields.String(required=True, allow_none=False)

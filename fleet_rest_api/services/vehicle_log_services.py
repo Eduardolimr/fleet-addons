@@ -1,4 +1,5 @@
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl).
+from odoo.addons.base_rest.components.service import to_int
 from odoo.addons.component.core import Component
 
 
@@ -19,12 +20,10 @@ class VehicleLogService(Component):
 
     def search(self, description):
         """
-        Searh vehicle by name
+        Searh vehicle by description
         """
-        vehicles = self.env["fleet.vehicle.log.service"].name_search(description)
-        vehicles = self.env["fleet.vehicle.log.service"].browse(
-            [i[0] for i in vehicles]
-        )
+        vehicles = self.env["fleet.vehicle"].name_search(description)
+        vehicles = self.env["fleet.vehicle"].browse([i[0] for i in vehicles])
         rows = []
         res = {"count": len(vehicles), "rows": rows}
         for vehicle in vehicles:
@@ -36,7 +35,7 @@ class VehicleLogService(Component):
         """
         Create a new vehicle
         """
-        vehicle = self.env["fleet.vehicle.log.service"].create(
+        vehicle = self.env["fleet.vehicle.log.services"].create(
             self._prepare_params(params)
         )
         return self._to_json(vehicle)
@@ -48,6 +47,15 @@ class VehicleLogService(Component):
         vehicle = self._get(_id)
         vehicle.write(self._prepare_params(params))
         return self._to_json(vehicle)
+
+    def delete(self, _id):
+        """
+        Delete vehicle
+        """
+        vehicle = self._get(_id)
+        vehicle.unlink()
+        return {"response": "Vehicle deleted"}
+
 
     def archive(self, _id, **params):
         """
@@ -67,7 +75,7 @@ class VehicleLogService(Component):
     # from the controller.
 
     def _get(self, _id):
-        return self.env["fleet.vehicle.log.service"].browse(_id)
+        return self.env["fleet.vehicle.log.services"].browse(_id)
 
     def _prepare_params(self, params):
         for key in ["model"]:
@@ -84,7 +92,7 @@ class VehicleLogService(Component):
         return res
 
     def _validator_search(self):
-        return {"description": {"type": "string", "nullable": False, "required": True}}
+        return {"id": {"type": "integer", "nullable": False, "required": True}}
 
     def _validator_return_search(self):
         return {
@@ -97,7 +105,17 @@ class VehicleLogService(Component):
         }
 
     def _validator_create(self):
-        res = {"description": {"type": "string", "required": True, "empty": False}}
+        res = {
+            "name": {"type": "string", "required": True, "empty": False},
+            "model": {
+                "type": "dict",
+                "schema": {
+                    "id": {"type": "integer", "coerce": to_int, "nullable": True},
+                    "notes": {"type": "string"},
+                    "description": {"type": "string"},
+                },
+            },
+        }
         return res
 
     def _validator_return_create(self):
@@ -119,6 +137,7 @@ class VehicleLogService(Component):
     def _to_json(self, vehicle):
         res = {
             "id": vehicle.id,
+            "notes": vehicle.notes,
             "description": vehicle.description,
         }
         return res

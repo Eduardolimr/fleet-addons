@@ -12,5 +12,5 @@ class FleetVehicleAssignationLog(Datamodel):
 
     id = fields.Integer(required=True, allow_none=False)
     description = fields.String(required=True, allow_none=False)
-    date_start = fields.Date(string="Start Date")
-    date_end = fields.Date(string="End Date")
+    date_start = fields.Date(string="Start Date", as_string=True)
+    date_end = fields.Date(string="End Date", as_string=True)

@@ -97,7 +97,12 @@ class VehicleAssignationLogService(Component):
         }
 
     def _validator_create(self):
-        res = {"description": {"type": "string", "required": True, "empty": False}}
+        res = {
+            "id": {"type": "integer", "required": True, "empty": False},
+            "description": {"type": "string", "required": True, "empty": False},
+            "date_start": {"type": "string", "required": True, "empty": False},
+            "date_end": {"type": "string", "required": True, "empty": False},
+        }
         return res
 
     def _validator_return_create(self):
